@@ -76,6 +76,9 @@ public class timer extends AppCompatActivity {
         restSec = getTimerValues.getIntExtra("restSec", 0);
         roundAmount = getTimerValues.getIntExtra("roundAmount", 0);
 
+        //display timer
+        timerText.setText(String.format("%02d:%02d", roundMin, roundSec));
+
         //boolean values for timer state (rest and paused, default is round)
         isRest = false;
         isPaused = true;
@@ -133,9 +136,9 @@ public class timer extends AppCompatActivity {
                 //update the roundTimeRemain so time is remembered on pause instead of restarted
                 roundTimeRemain = millisUntilFinished;
 
-                //calculate the time elapsed and total time in milliseconds
-                long timeElapsed = (roundMin * 60 + roundSec) * 1000 - millisUntilFinished;
-                long totalTime = (roundMin * 60 + roundSec) * 1000;
+                //calculate the time elapsed and total time in milliseconds (added one as it starts one second lower)
+                long timeElapsed = (roundMin * 60 + roundSec + 1) * 1000 - millisUntilFinished;
+                long totalTime = (roundMin * 60 + roundSec + 1) * 1000;
 
                 //make progress a percentage
                 int progressPercent = (int) (100 * timeElapsed / totalTime);
@@ -167,7 +170,7 @@ public class timer extends AppCompatActivity {
                 //if not the last round, go to rest timer, decrement round variable, update text
                 if (roundAmount > 1) {
                     //reset the round time remain for next round
-                    roundTimeRemain = (roundMin * 60 + roundSec) * 1000;
+                    roundTimeRemain = (roundMin * 60 + roundSec + 1) * 1000;
                     roundAmount--;
                     roundText.setText("Rest");
                     startRestTimer();
@@ -181,19 +184,17 @@ public class timer extends AppCompatActivity {
     }
     //basically same as above but for rest timer
     private void startRestTimer() {
-        restTimer = new CountDownTimer(restTimeRemain, 1000)
-        {
+        restTimer = new CountDownTimer(restTimeRemain, 1000) {
             @Override
-            public void onTick(long millisUntilFinished)
-            {
+            public void onTick(long millisUntilFinished) {
                 restTimeRemain = millisUntilFinished;
 
-                long timeElapsed = (restMin * 60 + restSec) * 1000 - millisUntilFinished;
-                long totalTime = (restMin * 60 + restSec) * 1000;
+                long timeElapsed = (restMin * 60 + restSec + 1) * 1000 - millisUntilFinished;
+                long totalTime = (restMin * 60 + restSec + 1) * 1000;
 
                 int progressPercent = (int) (100 * timeElapsed / totalTime);
 
-                    progress.setProgress(progressPercent);
+                progress.setProgress(progressPercent);
 
                 int minutes = (int) (millisUntilFinished / 1000) / 60;
                 int seconds = (int) (millisUntilFinished / 1000) % 60;
@@ -203,7 +204,6 @@ public class timer extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-
                 //create media player with default notification
                 MediaPlayer notificationSound = MediaPlayer.create(getApplicationContext(), Settings.System.DEFAULT_NOTIFICATION_URI);
                 //play sound
@@ -215,13 +215,15 @@ public class timer extends AppCompatActivity {
                         mediaPlayer.release();
                     }
                 });
-                restTimeRemain = (restMin * 60 + roundSec) * 1000;
+                restTimeRemain = (restMin * 60 + restSec  +1) * 1000;
                 roundText.setText("Round");
                 startRoundTimer();
             }
         }.start();
         isPaused = false;
     }
+
+
 
 
 }
